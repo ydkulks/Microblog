@@ -1,0 +1,276 @@
+Chapter-1:Hello World in Flask
+==============================
+Web Framework: Collection of modules/classes/functions that help developers to create
+              webapplication using programming language.
+Flask: It is a lightweight microframework for python to create webapps.
+
+Creating virtual environment package:
+-------------------------------------
+Virtual environment: A copy of python interpreter.
+ $python3 -m venv venv
+
+Activating venv:
+----------------
+$source venv/bin/activate
+
+Deactivating venv:
+-----------------
+ $deactivate
+
+Installing pip:
+---------------
+ $sudo apt-get install python3-pip
+
+Installing flask:
+-----------------
+ (venv)$pip3 install flask
+ If flask did not install fully and gives out "failed building wheel for MarkupSafe"
+    then execute this:
+	   (venv)$ pip3 install -U pip setuptools wheel
+Running flask:
+--------------
+ 0)Run python program
+ 1)Create a flask variable
+    (venv)$variable=python_file.py
+ 2)Running flask 
+    (venv)$flask run 
+===========================================================================
+ Writing first flask web app:
+-----------------------------
+
+1)Inside venv, create a sub-directory called "app"
+2)Inside app,create "__init__.py" file and write:
+
+app/__init__.py:
+------------------
+from flask import Flask
+
+app = Flask(__name__)
+
+from app import routes
+
+ Explaination:
+ -------------
+    In Python,a sub directory that includes __init__.py is considered as a 
+package.
+    "app=Flask(__name__)"creates an object of the class flask imported from
+the flask package.
+    "__name__" is a predefined variable that acts as main() in other 
+programming language.Flask uses the location of the module passed here as 
+a starting point when it needs to load associated resources.
+    "from app import routes" in this, routes are different URLs that the
+application implements
+
+3)Write the URLs used by webapp in "routes.py" file :
+
+app/routes.py:
+----------------
+from app import app
+
+@app.route('/')
+@app.route('/index')
+def index():
+    return "Hello, World!"
+
+  Explaination:
+---------------
+     Two lines "@app.route" are decorators, a unique feature in python,it 
+binds a URL to a function in this program. A decorator modifies the function
+that follows it and returns it.
+     In the above code, we are binding "/" and "index" to the function 
+"def index():"
+
+https://www.programiz.com/python-programming/decorator
+
+4)Create a pyton script at the top-level that defines the Flask application 
+ instance.Write "mircoblog.py" outside the "app" sub-directory.
+
+microblog.py:
+------------
+from app import app
+  
+  Explaination:
+  -------------
+      Imports "app" variable from "app" directory.
+=============================================================================
+Chapter-2:Templates
+===================
+1)Creating mock objects (users)
+      Since we dont have users who can interact with the webapp,we need to 
+    create a temprory users as a place-holders so that we can move on to the
+    coding aspect insted of worrieing about users.
+      To create one, type:
+           "user={'username':'YD'}"
+    in the routes.py file inside "def index():" function.
+2)Creating templates
+      Create a sub-directory inside "app" directory called "templates".Inside this,
+    make a "index.html" file to write the html page:
+         <!--app/templates/index.html-->
+         <html>
+         <head>
+         <title>{{ title }} - Microblog</title>
+         </head>
+         <body>
+         <h1>Hello, {{ user.username }}!</h1>
+         </body>
+         </html>
+      In flask, templates help seperating the presentation from the logic.
+3)Rendering the templates
+      The operation that converts a template into a complate HTML page is 
+    called "rendering".To perform this flask function, we need to import 
+    the function that comes with the Flask framework called "render_template()"
+    It takes a template filename and a variable list of template arguments and 
+    returns the same template, but with all the placeholders in it replaced with
+    actual values.
+          #app/routes.py#
+          from flask import render_template
+          from app import app
+
+          @app.route('/')
+          @app.route('/index')
+          def index():
+          user = {'username': 'Miguel'}
+          return render_template('index.html', title='Home', user=user)  
+
+      It also substitutes {{...}} block with the corresponding values,given by
+    the arguments provided in the render_template() call.
+    https://www.programiz.com/python-programming/decorator
+
+Creating fake user feed
+------------------------
+     Define a variable "posts" and assign a directory of posts as a list as its
+     values:
+          #app/routes.py
+          posts = [
+           {
+             'author': {'username': 'John'},
+             'body': 'Beautiful day in Portland!'
+           },
+           {
+             'author': {'username': 'Susan'},
+             'body': 'The Avengers movie was so cool!'
+           }
+          ]
+    Pass this variable into the render_template():
+          return render_template('index.html', title='Home', user=user, posts=posts)
+
+Using conditional statements in html
+------------------------------------
+     Syntax:{% conditional-statements %}
+     Example:
+        <!--app/templates/index.html-->
+       <html>
+       <head>
+           {% if title %}
+           <title>{{ title }} - Microblog</title>
+           {% else %}
+           <title>Welcome to Microblog</title>
+           {% endif %}
+       </head>
+       <body>
+           <h1>Hi, {{ user.username }}!</h1>
+           {% for post in posts %}
+           <div>
+                <p>{{ post.author.username }} says: <b>{{ post.body }}</b>
+                </p>
+           </div>
+           {% endfor %}
+       </body>
+       </html>
+    
+    If condition checks weather there is a title given or not and take action 
+  accordingly.
+    For loop will loop though the "post" variable which has a dictionary of 
+  posts.
+
+Inheritance
+------------
+1)Write the code which are repeatative in "base.html" file which can be 
+  inherited by other files.
+       <!--app/templates/base.html-->
+       <html>
+       <head>
+         {% if title %}
+         <title>{{ title }} - Microblog</title>
+         {% else %}
+         <title>Welcome to Microblog</title>
+         {% endif %}
+       </head>
+       <body>
+           <div>Microblog: <a href="/index">Home</a></div>
+           <hr>
+           {% block content %}{% endblock %}
+       </body>
+       </html>
+2)Inherite the file by extending the file into the required code.
+       <!--app/templates/index.html-->
+       {% extends "base.html" %}
+
+       {% block content %}
+       <h1>Hi, {{ user.username }}!</h1>
+       {% for post in posts %}
+       <div><p>{{ post.author.username }} says: <b>{{ post.body }}</b></p></div>
+       {% endfor %}
+       {% endblock %}
+
+          Use "{% block content %} to define the place where the derived templates
+      can insert themselves."Block" are given unique name which derived templates
+      can refer when they provide their content.
+
+===================================================================================
+Chapter-3:Web Forms
+-------------------
+Flask-WTF
+---------
+1)Install flask-WTF 
+    
+     (venv)$pip3 install flask-wtf
+
+        Flask-wtf define the form fields in our python script and render them using 
+     HTML.
+        https://www.tutorialspoint.com/flask/flask_wtf.htm
+
+2)Configuring flask application
+     https://hackingandslacking.com/configuring-your-flask-application-4e5341d7affb
+
+     os.environ:  In os module, environ has the user's environmental variable. Returns
+           those variable and its values as value.Since it behaves like python directory, 
+           operations like get and set can be performed.No parameters required. 
+
+     WRONG WAY:
+                 #microblog/app/__init__.py
+                 app=Flask(__name__)
+                 app.config['SECRET_KEY']='you_will_never_guess'
+                 #add more variables here as needed
+          This is the easiest and most wrongful way of configuring.
+          In this, app variable with Flask as its value is accessing its inbuilt config 
+     module and assigns key its value for encryption.
+          You can check all the modules available inside flask by typing following code
+     inside python IDE:
+          >>>import flask
+          >>>print(dir(flask))
+          >>>print(dir(flask.config))
+
+     RIGHT WAY:
+                 #microblog/config.py
+                 import os
+
+                 class Config(object):
+                 SECRET_KEY = os.environ.get('SECRET_KEY') or 'you-will-never-guess' 
+    -->  Create a file called config.py in main directory ,microblog. Write all 
+      configuration code inside that file insted of writing inside __init__.py file. 
+    -->  Create a class with an argument.Get secret key using os.environ method and 
+      assign it to a variable.
+
+    -->   Now that i have a config.py file i need to tell Flask to read it and apply 
+     it by app.config.from_object() method.
+
+        #app/__init__.py
+        from flask import Flask
+        from config import Config
+        
+        app = Flask(__name__)
+        app.config.from_object(Config)
+
+        from app import routes 
+
