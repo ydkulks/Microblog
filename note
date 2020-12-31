@@ -31,9 +31,9 @@ Running flask:
 --------------
  0)Run python program
  1)Create a flask variable
-    (venv)$variable=python_file.py
+    (venv)$ export FLASK_APP=python_file.py
  2)Running flask 
-    (venv)$flask run 
+    (venv)$ flask run 
 ===========================================================================
  Writing first flask web app:
 -----------------------------
@@ -220,6 +220,52 @@ Inheritance
 ===================================================================================
 Chapter-3:Web Forms
 -------------------
+Configuring flask application
+-----------------------------
+https://hackingandslacking.com/configuring-your-flask-application-4e5341d7affb
+
+os.environ:  In os module, environ has the user's environmental variable. Returns
+      those variable and its values as value.Since it behaves like python directory, 
+      operations like get and set can be performed.No parameters required. 
+
+WRONG WAY:
+            #microblog/app/__init__.py
+            app=Flask(__name__)
+            app.config['SECRET_KEY']='you_will_never_guess'
+            #add more variables here as needed
+     This is the easiest and most wrongful way of configuring.
+     In this, app variable with Flask as its value is accessing its inbuilt config 
+module and assigns key its value for encryption.
+     You can check all the modules available inside flask by typing following code
+inside python IDE:
+     >>>import flask
+     >>>print(dir(flask))
+     >>>print(dir(flask.config))
+
+RIGHT WAY:
+            #microblog/config.py
+            import os
+
+            class Config(object):
+                SECRET_KEY = os.environ.get('SECRET_KEY') or 'you-will-never-guess' 
+                
+-->  Create a file called config.py in main directory ,microblog. Write all 
+  configuration code inside that file insted of writing inside __init__.py file. 
+-->  Create a class with an argument.Get secret key using os.environ method and 
+  assign it to a variable.
+
+-->   Now that i have a config.py file i need to tell Flask to read it and apply 
+ it by creating instance of config: app.config.from_object().
+
+    #app/__init__.py
+    from flask import Flask
+    from config import Config
+    
+    app = Flask(__name__)
+    app.config.from_object(Config)
+
+    from app import routes 
+
 Flask-WTF
 ---------
 1)Install flask-WTF 
@@ -230,47 +276,5 @@ Flask-WTF
      HTML.
         https://www.tutorialspoint.com/flask/flask_wtf.htm
 
-2)Configuring flask application
-     https://hackingandslacking.com/configuring-your-flask-application-4e5341d7affb
-
-     os.environ:  In os module, environ has the user's environmental variable. Returns
-           those variable and its values as value.Since it behaves like python directory, 
-           operations like get and set can be performed.No parameters required. 
-
-     WRONG WAY:
-                 #microblog/app/__init__.py
-                 app=Flask(__name__)
-                 app.config['SECRET_KEY']='you_will_never_guess'
-                 #add more variables here as needed
-          This is the easiest and most wrongful way of configuring.
-          In this, app variable with Flask as its value is accessing its inbuilt config 
-     module and assigns key its value for encryption.
-          You can check all the modules available inside flask by typing following code
-     inside python IDE:
-          >>>import flask
-          >>>print(dir(flask))
-          >>>print(dir(flask.config))
-
-     RIGHT WAY:
-                 #microblog/config.py
-                 import os
-
-                 class Config(object):
-                 SECRET_KEY = os.environ.get('SECRET_KEY') or 'you-will-never-guess' 
-    -->  Create a file called config.py in main directory ,microblog. Write all 
-      configuration code inside that file insted of writing inside __init__.py file. 
-    -->  Create a class with an argument.Get secret key using os.environ method and 
-      assign it to a variable.
-
-    -->   Now that i have a config.py file i need to tell Flask to read it and apply 
-     it by app.config.from_object() method.
-
-        #app/__init__.py
-        from flask import Flask
-        from config import Config
-        
-        app = Flask(__name__)
-        app.config.from_object(Config)
-
-        from app import routes 
-
+-->  Create a user login form,which asks for username,password,remember me checkbox
+  and submit button. Now,store it in "app/forms.py" module.
