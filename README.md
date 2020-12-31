@@ -1,2 +1,2 @@
 # Microblog :
-  Web application using flask microframework named Microblog.
+  Web application using flask.
